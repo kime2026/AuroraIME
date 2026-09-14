@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="aurora_glass_light">#1FFFFFFA</color>
+    <color name="aurora_glass_dark">#3F000000</color>
+    <color name="aurora_tint">#26FFFFFF</color>
+    <color name="aurora_edge_highlight">#52FFFFFF</color>
+    <color name="aurora_warning">#FCA5A5</color>
+    <color name="aurora_safe">#86EFAC</color>
+    <color name="aurora_key_bg">#22FFFFFF</color>
+</resources>
