@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Aurora IME</string>
+    <string name="settings_title">Aurora IME 设置</string>
+    <string name="ime_label">Aurora 输入法</string>
+
+    <!-- 安全面板 -->
+    <string name="security_network">网络权限</string>
+    <string name="security_network_value">未申请</string>
+    <string name="security_network_detail">本应用未声明 INTERNET 权限</string>
+    <string name="security_voice">语音处理</string>
+    <string name="security_voice_value">100% 本地</string>
+    <string name="security_voice_detail">语音识别模型运行在本机 CPU</string>
+    <string name="security_traffic_zero">0 KB ↑ · 0 KB ↓</string>
+    <string name="security_traffic_detail">本进程 UID 自系统启动以来的累计流量</string>
+
+    <!-- 隐私提示 -->
+    <string name="context_password">🔒 密码输入</string>
+    <string name="context_phone">📱 电话号码</string>
+    <string name="context_email">✉ 邮箱</string>
+    <string name="context_url">🔗 网址</string>
+    <string name="context_search">🔍 搜索</string>
+    <string name="context_plain">💬 普通文本</string>
+    <string name="context_incognito">⛔ 无痕模式</string>
+
+    <!-- 键盘 -->
+    <string name="key_space">中 / 空格</string>
+    <string name="key_voice_hint">长按空格 = 语音</string>
+    <string name="key_handwriting_hint">设置中可启用手写</string>
+
+    <!-- 模型导入 -->
+    <string name="model_not_loaded">语音模型未加载</string>
+    <string name="model_loading">正在加载语音模型...</string>
+    <string name="model_loaded">语音模型已就绪</string>
+    <string name="model_import_hint">设置 → 导入语音模型</string>
+</resources>

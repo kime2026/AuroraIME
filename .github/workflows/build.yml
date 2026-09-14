@@ -1,0 +1,113 @@
+name: Build Aurora IME APK
+
+on:
+  workflow_dispatch:   # 手动触发)
+  push:
+    branches: [ main ]
+    tags: [ 'v*' ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    name: 单元测试 (Privacy Matrix)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 设置 JDK 17
+        uses: actions/setup@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: 缓存 Gradle
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
+      - name: 运行单元测试
+        run: ./gradlew :app:testDebugUnitTest
+
+      - name: 上传测试报告
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-report
+          path: app/build/reports/tests/
+
+  build:
+    name: 构建 APK
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 设置 JDK 17
+        uses: actions/setup@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: 缓存 Gradle
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
+      - name: 注入 git 哈希
+        id: git
+        run: |
+          echo "git_hash=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+
+      - name: 构建 Debug + Release APK
+        env:
+          AURORA_STORE_PASSWORD: ${{ secrets.AURORA_STORE_PASSWORD }}
+          AURORA_KEY_PASSWORD: ${{ secrets.AURORA_KEY_PASSWORD }}
+        run: |
+          # 先用项目自带的 keystore (已提交到仓库) 构建
+          ./gradlew :app:assembleDebug :app:assembleRelease
+
+      - name: 安全门禁审计
+        run: |
+          chmod +x scripts/check_deps.sh
+          ./scripts/check_deps.sh app/build/outputs/apk/release/app-release.apk
+
+      - name: 上传 APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: aurora-ime-apk
+          path: |
+            app/build/outputs/apk/debug/app-debug.apk
+            app/build/outputs/apk/release/app-release.apk
+          if-no-files-found: error
+
+      - name: 发布到 Release (tag 触发)
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            app/build/outputs/apk/release/app-release.apk
+          body: |
+            ## Aurora IME ${{ github.ref_name }}
+
+            **构建哈希**: ${{ steps.git.outputs.git_hash }}
+
+            ### 真机安装
+            1. 下载 `app-release.apk`
+            2. 允许"未知来源"
+            3. 安装
+            4. 设置 → 输入法 → 启用 Aurora IME
+
+            ### 验证清单
+            详见 [真机自检清单](https://github.com/${{ github.repository }}/blob/main/docs/真机自检清单.md)
+          fail_on_unmatched_files: true
